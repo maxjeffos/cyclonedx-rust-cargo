@@ -29,7 +29,7 @@ use crate::{
     specs::v1_3::{
         component::Components, composition::Compositions, dependency::Dependencies,
         external_reference::ExternalReferences, metadata::Metadata, property::Properties,
-        service::Services,
+        service::Services, vulnerability::Vulnerabilities,
     },
     xml::ToXml,
 };
@@ -57,6 +57,8 @@ pub(crate) struct Bom {
     compositions: Option<Compositions>,
     #[serde(skip_serializing_if = "Option::is_none")]
     properties: Option<Properties>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    vulnerabilities: Option<Vulnerabilities>,
 }
 
 impl From<models::bom::Bom> for Bom {
@@ -73,6 +75,7 @@ impl From<models::bom::Bom> for Bom {
             dependencies: convert_optional(other.dependencies),
             compositions: convert_optional(other.compositions),
             properties: convert_optional(other.properties),
+            vulnerabilities: convert_optional(other.vulnerabilities),
         }
     }
 }
@@ -89,6 +92,7 @@ impl From<Bom> for models::bom::Bom {
             dependencies: convert_optional(other.dependencies),
             compositions: convert_optional(other.compositions),
             properties: convert_optional(other.properties),
+            vulnerabilities: convert_optional(other.vulnerabilities),
         }
     }
 }
@@ -161,6 +165,7 @@ const EXTERNAL_REFERENCES_TAG: &str = "externalReferences";
 const DEPENDENCIES_TAG: &str = "dependencies";
 const COMPOSITIONS_TAG: &str = "compositions";
 const PROPERTIES_TAG: &str = "properties";
+const VULNERABILITIES_TAG: &str = "vulnerabilities";
 
 impl FromXmlDocument for Bom {
     fn read_xml_document<R: std::io::Read>(
@@ -208,6 +213,7 @@ impl FromXmlDocument for Bom {
         let mut dependencies: Option<Dependencies> = None;
         let mut compositions: Option<Compositions> = None;
         let mut properties: Option<Properties> = None;
+        let mut vulnerabilities: Option<Vulnerabilities> = None;
 
         let mut got_end_tag = false;
         while !got_end_tag {
@@ -276,6 +282,15 @@ impl FromXmlDocument for Bom {
                         &attributes,
                     )?)
                 }
+                reader::XmlEvent::StartElement {
+                    name, attributes, ..
+                } if name.local_name == VULNERABILITIES_TAG => {
+                    vulnerabilities = Some(Vulnerabilities::read_xml_element(
+                        event_reader,
+                        &name,
+                        &attributes,
+                    )?)
+                }
                 // lax validation of any elements from a different schema
                 reader::XmlEvent::StartElement { name, .. } => {
                     read_lax_validation_tag(event_reader, &name)?
@@ -306,6 +321,7 @@ impl FromXmlDocument for Bom {
             dependencies,
             compositions,
             properties,
+            vulnerabilities,
         })
     }
 }
@@ -362,6 +378,7 @@ pub(crate) mod test {
             dependencies: None,
             compositions: None,
             properties: None,
+            vulnerabilities: None,
         }
     }
 
@@ -378,6 +395,7 @@ pub(crate) mod test {
             dependencies: Some(example_dependencies()),
             compositions: Some(example_compositions()),
             properties: Some(example_properties()),
+            vulnerabilities: None,
         }
     }
 
@@ -392,6 +410,7 @@ pub(crate) mod test {
             dependencies: Some(corresponding_dependencies()),
             compositions: Some(corresponding_compositions()),
             properties: Some(corresponding_properties()),
+            vulnerabilities: None,
         }
     }
 

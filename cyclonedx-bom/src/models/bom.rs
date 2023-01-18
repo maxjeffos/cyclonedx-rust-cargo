@@ -30,6 +30,7 @@ use crate::models::external_reference::ExternalReferences;
 use crate::models::metadata::Metadata;
 use crate::models::property::Properties;
 use crate::models::service::{Service, Services};
+use crate::models::vulnerability::Vulnerabilities;
 use crate::validation::{
     FailureReason, Validate, ValidationContext, ValidationError, ValidationPathComponent,
     ValidationResult,
@@ -47,6 +48,7 @@ pub struct Bom {
     pub dependencies: Option<Dependencies>,
     pub compositions: Option<Compositions>,
     pub properties: Option<Properties>,
+    pub vulnerabilities: Option<Vulnerabilities>,
 }
 
 impl Bom {
@@ -103,6 +105,7 @@ impl Default for Bom {
             dependencies: None,
             compositions: None,
             properties: None,
+            vulnerabilities: None,
         }
     }
 }
@@ -486,6 +489,7 @@ mod test {
             dependencies: None,
             compositions: None,
             properties: None,
+            vulnerabilities: None,
         };
 
         let actual = bom
@@ -510,6 +514,7 @@ mod test {
             }])),
             compositions: None,
             properties: None,
+            vulnerabilities: None,
         };
 
         let actual = bom.validate().expect("Failed to validate bom");
@@ -568,6 +573,7 @@ mod test {
                 dependencies: Some(vec![BomReference("dependencies".to_string())]),
             }])),
             properties: None,
+            vulnerabilities: None,
         };
 
         let actual = bom.validate().expect("Failed to validate bom");
@@ -688,6 +694,7 @@ mod test {
                 name: "name".to_string(),
                 value: NormalizedString("invalid\tvalue".to_string()),
             }])),
+            vulnerabilities: None,
         };
 
         let actual = bom
@@ -847,6 +854,7 @@ mod test {
             dependencies: None,
             compositions: None,
             properties: None,
+            vulnerabilities: None,
         }
         .validate_with_context(ValidationContext::default())
         .expect("Error while validating");

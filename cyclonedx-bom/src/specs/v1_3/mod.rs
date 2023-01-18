@@ -30,3 +30,4 @@ pub(crate) mod organization;
 pub(crate) mod property;
 pub(crate) mod service;
 pub(crate) mod tool;
+pub(crate) mod vulnerability;
